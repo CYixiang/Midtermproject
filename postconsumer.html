@@ -1,1 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Consumer - 取得 FHIR Observation</title>
+    <script>
+        const FHIRrootURL = 'https://fhir.tcumi.com:58443/r5/fhir/';
 
+        function sendHttpGet(url, callback) {
+            fetch(url)
+                .then(response => response.json())
+                .then(data => callback(data))
+                .catch(error => console.error('Error:', error));
+        }
+
+        function processObservation(data) {
+            // 處理從伺服器取得的觀察資料
+            console.log(data); // 將資料輸出到控制台以便檢視
+            // 在這裡實作將資料顯示在網頁上的邏輯
+            displayObservation(data);
+        }
+
+        function displayObservation(data) {
+            // 在此顯示提供者端上傳的呼吸速率資料
+            var observationsDiv = document.getElementById('observations');
+            if (data && data.entry && data.entry.length > 0) {
+                var value = data.entry[0].resource.valueQuantity.value;
+                observationsDiv.innerHTML = `提供者輸入的呼吸速率是：${value}`;
+            } else {
+                observationsDiv.innerHTML = '無資料';
+            }
+        }
+
+        function getData() {
+            var apiURL = FHIRrootURL + 'Observation?code=9279-1'; // 使用 LOINC code 9279-1 (Respiratory rate) 查詢觀察資料
+            sendHttpGet(apiURL, processObservation);
+        }
+    </script>   
+</head>
+<body>
+    <div id="Title">Consumer - 取得提供者上傳的呼吸速率資料</div>
+    <p></p>
+    <input id="Button2" onclick="getData()" type="button" value="取得資料" />
+    <p></p>
+    <div id="observations"></div>
+</body>
+</html>
