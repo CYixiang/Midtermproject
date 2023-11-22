@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Post FHIR Observation</title>
+    
+    <script>
+        const FHIRrootURL = 'https://fhir.tcumi.com:58443/r5/fhir/';
+
+        function createFHIRObservation(respiratoryRate) {
+            const observation = {
+                "resourceType": "Observation",
+                "status": "final",
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                                "code": "vital-signs",
+                                "display": "Vital Signs"
+                            }
+                        ],
+                        "text": "Vital Signs"
+                    }
+                ],
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "9279-1",
+                            "display": "Respiratory rate"
+                        }
+                    ],
+                    "text": "Respiratory rate"
+                },
+                "valueQuantity": {
+                    "value": respiratoryRate,
+                    "unit": "/min",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "/min"
+                }
+                // Additional properties like subject, effectiveDateTime can be added
+            };
+            return observation;
+        }
+
+        function sendHttpPost(url, data, callback) {
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                    // You may need to include additional headers or authorization tokens here
+                },
+                body: data
+            })
+            .then(response => response.json())
+            .then(data => callback(data))
+            .catch(error => console.error('Error:', error));
+        }
+
+        function postData() {
+            const respiratoryRate = parseFloat(document.getElementById("resRate").value);
+            const observation = createFHIRObservation(respiratoryRate);
+            const jsonStr = JSON.stringify(observation);
+            sendHttpPost(FHIRrootURL + "Observation", jsonStr, callBack);
+        }
+
+        function callBack(ret) {
+            console.log(ret);    
+            // Handle the response from the server here
+        }
+    </script>   
+</head>
+<body style="height: 780px">
+    <p>請輸入呼吸速率 (0~100):</p>
+    <input id="Button1" onclick="postData()" type="button" value="Upload Data" /><br/>
+    呼吸速率: <input type="text" id="resRate" />  <br/>
+</body>
+</html>
